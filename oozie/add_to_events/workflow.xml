@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<workflow-app xmlns="uri:oozie:workflow:0.5" name="hive2-wf">
+
+  <start to="setup-processing"/>
+
+  <action name="setup-processing">
+    <fs>
+      <mkdir path="${nameNode}/user/${wf:user()}/processing/${datafeed}/${wf:id()}" />
+      <move source="${nameNode}/user/${wf:user()}/landing/${datafeed}.*/FlumeData*" target="${nameNode}/user/${wf:user()}/processing/${datafeed}/${wf:id()}" />
+    </fs>
+    <ok to="hive2-create-landing-tables"/>
+    <error to="fail"/>
+  </action>
+
+  <action name="hive2-create-landing-tables">
+   <hive2 xmlns="uri:oozie:hive2-action:0.1">
+     <job-tracker>${jobTracker}</job-tracker>
+     <name-node>${nameNode}</name-node>
+     <jdbc-url>${jdbcURL}</jdbc-url>
+     <script>create_landing_tables.q</script>
+     <param>WORKING_DIR=${wf:id()}</param>
+     <param>DATAFEED=${datafeed}</param>
+   </hive2>
+   <ok to="hive2-load-staging"/>
+   <error to="fail"/>
+ </action>
+
+  <action name="hive2-load-staging">
+    <hive2 xmlns="uri:oozie:hive2-action:0.1">
+      <job-tracker>${jobTracker}</job-tracker>
+      <name-node>${nameNode}</name-node>
+      <jdbc-url>${jdbcURL}</jdbc-url>
+      <script>events_add_load.q</script>
+    </hive2>
+    <ok to="end"/>
+    <error to="fail"/>
+  </action>
+
+  <kill name="fail">
+    <message>Hive2 (Beeline) action failed, error message[${wf:errorMessage(wf:lastErrorNode())}]</message>
+  </kill>
+
+  <end name="end"/>
+
+</workflow-app>
+

@@ -1,0 +1,9 @@
+target/
+.classpath
+.project
+.wtpmodules
+.DS_Store
+log/
+.settings/
+output/
+*.swp
