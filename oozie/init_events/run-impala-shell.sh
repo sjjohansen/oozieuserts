@@ -23,10 +23,9 @@ LOG=${LOG_DIR}/${LOG_PRE}.log
 
 echo "`date` Running: impala-shell --impalad=${IMPD_HOST} -f ${HQL_SCRIPT}" >> $LOG
 export PYTHON_EGG_CACHE=./myeggs
-IMPALA_OUT=`impala-shell --impalad=${IMPD_HOST} -f ${HQL_SCRIPT}`
-EXIT_CODE=$?
 echo "`date` Impala output: " >> $LOG
-echo "$IMPALA_OUT" >> $LOG
+impala-shell --impalad=${IMPD_HOST} -f ${HQL_SCRIPT} >> $LOG 2>&1
+EXIT_CODE=$?
 
 # right now the log is on the local YARN container, so shove into HDFS for later
 hdfs dfs -mkdir -p $LOG_DIR

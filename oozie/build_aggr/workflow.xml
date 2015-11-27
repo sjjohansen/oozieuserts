@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<workflow-app xmlns="uri:oozie:workflow:0.5" name="hive2-wf">
+
+  <start to="impala-build-aggregate"/>
+
+  <!-- using a shell action as one does not seem to exist for Impala -->
+  <action name="impala-build-aggregate">
+    <shell xmlns="uri:oozie:shell-action:0.1">
+      <job-tracker>${jobTracker}</job-tracker>
+      <name-node>${nameNode}</name-node>
+      <exec>run-impala-shell.sh</exec>
+      <argument>${impaladHost}</argument>
+      <argument>${aggrScript}</argument>
+      <argument>${wf:id()}</argument>
+      <file>run-impala-shell.sh#run-impala-shell.sh</file>
+      <file>${aggrScript}#${aggrScript}</file>
+    </shell>
+    <ok to="end"/>
+    <error to="fail"/>
+  </action>
+
+  <kill name="fail">
+    <message>Hive2 (Beeline) action failed, error message[${wf:errorMessage(wf:lastErrorNode())}]</message>
+  </kill>
+
+  <end name="end"/>
+
+</workflow-app>
+
