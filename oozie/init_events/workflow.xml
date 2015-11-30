@@ -6,7 +6,7 @@
   <action name="setup-processing">
     <fs>
       <mkdir path="${nameNode}/user/${wf:user()}/processing/${datafeed}/${wf:id()}" />
-      <move source="${nameNode}/user/${wf:user()}/landing/${datafeed}.*/FlumeData*" target="${nameNode}/user/${wf:user()}/processing/${datafeed}/${wf:id()}" />
+      <move source="${nameNode}/user/${wf:user()}/landing/${datafeed}/*/FlumeData*" target="${nameNode}/user/${wf:user()}/processing/${datafeed}/${wf:id()}" />
     </fs>
     <ok to="hive2-create-target-tables"/>
     <error to="fail"/>
